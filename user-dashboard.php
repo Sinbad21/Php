@@ -277,19 +277,6 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
             max-height: 600px;
         }
 
-        .column-group {
-            margin-bottom: 30px;
-        }
-
-        .column-group-title {
-            background: #2c3e50;
-            color: white;
-            padding: 10px 15px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-
         .response-box table {
             width: 100%;
             border-collapse: collapse;
@@ -918,13 +905,6 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                         const startCol = groupIndex * columnsPerGroup;
                         const endCol = Math.min(startCol + columnsPerGroup, columnCount);
                         const groupColumns = allColumns.slice(startCol, endCol);
-
-                        // Titolo gruppo (se ci sono più gruppi)
-                        if (groupCount > 1) {
-                            html += '<div class="column-group-title">';
-                            html += 'Colonne ' + (startCol + 1) + '-' + endCol;
-                            html += '</div>';
-                        }
 
                         // Tabella per questo gruppo
                         html += '<table>';
