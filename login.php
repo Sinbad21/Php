@@ -1,8 +1,8 @@
 <?php
 /**
  * ===================================================
- * PAGINA DI LOGIN AMMINISTRATORE
- * Gestisce l'autenticazione degli amministratori
+ * PAGINA DI LOGIN UNIFICATA
+ * Gestisce l'autenticazione di admin e utenti
  * ===================================================
  */
 
@@ -33,33 +33,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMessage = 'Username e password sono obbligatori';
     } else {
         try {
-            // Cerca l'amministratore nel database
+            $loginSuccess = false;
+            $userType = null;
+
+            // STEP 1: Cerca prima nella tabella ADMIN
             $stmt = $pdo->prepare("SELECT id, username, password_hash FROM admin WHERE username = :username LIMIT 1");
             $stmt->execute(['username' => $username]);
             $admin = $stmt->fetch();
 
-            // Verifica se l'utente esiste e la password è corretta
             if ($admin && password_verify($password, $admin['password_hash'])) {
-                // Login riuscito - crea la sessione
-                session_regenerate_id(true); // Rigenera ID sessione per sicurezza
+                // Login ADMIN riuscito
+                session_regenerate_id(true);
 
+                $_SESSION['user_type'] = 'admin';
                 $_SESSION['admin_logged_in'] = true;
-                $_SESSION['admin_id'] = $admin['id'];
-                $_SESSION['admin_username'] = $admin['username'];
+                $_SESSION['user_id'] = $admin['id'];
+                $_SESSION['username'] = $admin['username'];
                 $_SESSION['login_time'] = time();
                 $_SESSION['last_activity'] = time();
 
-                // Reindirizza alla dashboard
                 header('Location: dashboard.php');
                 exit;
-
-            } else {
-                // Login fallito
-                $errorMessage = 'Username o password non corretti';
-
-                // Opzionale: aggiungi un delay per prevenire brute force
-                sleep(1);
             }
+
+            // STEP 2: Se non trovato in admin, cerca nella tabella UTENTI
+            $stmt = $pdo->prepare("SELECT id, username, password_hash, api_key FROM utenti WHERE username = :username LIMIT 1");
+            $stmt->execute(['username' => $username]);
+            $utente = $stmt->fetch();
+
+            if ($utente && password_verify($password, $utente['password_hash'])) {
+                // Login UTENTE riuscito
+                session_regenerate_id(true);
+
+                $_SESSION['user_type'] = 'user';
+                $_SESSION['user_logged_in'] = true;
+                $_SESSION['user_id'] = $utente['id'];
+                $_SESSION['username'] = $utente['username'];
+                $_SESSION['api_key'] = $utente['api_key'];
+                $_SESSION['login_time'] = time();
+                $_SESSION['last_activity'] = time();
+
+                header('Location: user-dashboard.php');
+                exit;
+            }
+
+            // Se arriviamo qui, il login è fallito
+            $errorMessage = 'Username o password non corretti';
+            sleep(1); // Delay per prevenire brute force
 
         } catch (PDOException $e) {
             $errorMessage = 'Errore durante il login. Riprovare più tardi.';
@@ -75,8 +95,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // ===================================================
 
 if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
-    // Già loggato, reindirizza alla dashboard
     header('Location: dashboard.php');
+    exit;
+}
+
+if (isset($_SESSION['user_logged_in']) && $_SESSION['user_logged_in'] === true) {
+    header('Location: user-dashboard.php');
     exit;
 }
 
@@ -86,7 +110,7 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Amministratore - API Dashboard</title>
+    <title>Login - API Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -228,8 +252,8 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>🔐 Login Admin</h1>
-            <p>Dashboard API Tracking System</p>
+            <h1>🔐 Login</h1>
+            <p>API Hardware Components System</p>
         </div>
 
         <?php if (!empty($errorMessage)): ?>
@@ -275,20 +299,17 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
             </div>
 
             <button type="submit" class="btn-login">
-                Accedi alla Dashboard
+                Accedi
             </button>
         </form>
 
         <div class="footer-info">
-            <p>Credenziali default: admin / admin123</p>
-            <p style="margin-top: 5px; font-size: 11px; color: #f44;">
-                ⚠️ Cambiare la password dopo il primo accesso!
-            </p>
+            <p>Admin: admin / admin123</p>
+            <p>Utenti: username / password123 (default)</p>
         </div>
     </div>
 
     <script>
-        // Funzione per mostrare/nascondere password
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const toggleBtn = document.querySelector('.password-toggle-btn');
@@ -302,7 +323,6 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
             }
         }
 
-        // Auto-focus sul campo username
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('username').focus();
         });

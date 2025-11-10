@@ -358,6 +358,7 @@ $logRecenti = $stmt->fetchAll();
     <div class="navbar">
         <h1>📊 Dashboard API Tracking</h1>
         <div class="navbar-info">
+            <a href="manage-users.php" class="btn" style="background: rgba(255, 255, 255, 0.2); color: white; margin-right: 10px;">👥 Gestisci Utenti</a>
             <span>👤 <?php echo htmlspecialchars($_SESSION['admin_username']); ?></span>
             <span class="timestamp">⏰ <?php echo date('d/m/Y H:i'); ?></span>
             <a href="logout.php" class="btn btn-logout">Logout</a>
