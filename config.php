@@ -36,7 +36,7 @@ define('DB_CHARSET', 'utf8mb4');
 // ===================================================
 
 // Attiva la visualizzazione errori in sviluppo (DISATTIVARE IN PRODUZIONE!)
-define('DEBUG_MODE', false);
+define('DEBUG_MODE', true);
 
 // Timezone dell'applicazione
 date_default_timezone_set('Europe/Rome');
