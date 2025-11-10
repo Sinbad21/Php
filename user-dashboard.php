@@ -480,7 +480,6 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
                         <option value="ping">Ping - Test connessione</option>
                         <option value="list">List - Elenca componenti</option>
                         <option value="search">Search - Cerca per EAN</option>
-                        <option value="stats">Stats - Statistiche</option>
                     </select>
                 </div>
 
@@ -496,11 +495,6 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
                 <div class="form-group" id="eanGroup" style="display: none;">
                     <label>Codice EAN</label>
                     <input type="text" id="ean" name="ean" placeholder="Es: 1234567890123">
-                </div>
-
-                <div class="form-group" id="limitGroup" style="display: none;">
-                    <label>Limit (max 100)</label>
-                    <input type="number" id="limit" name="limit" value="10" min="1" max="100">
                 </div>
 
                 <div class="form-group">
@@ -808,17 +802,14 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
             const action = document.getElementById('action').value;
             const tableGroup = document.getElementById('tableGroup');
             const eanGroup = document.getElementById('eanGroup');
-            const limitGroup = document.getElementById('limitGroup');
 
             // Nascondi tutto
             tableGroup.style.display = 'none';
             eanGroup.style.display = 'none';
-            limitGroup.style.display = 'none';
 
             // Mostra campi in base all'azione
             if (action === 'list') {
                 tableGroup.style.display = 'block';
-                limitGroup.style.display = 'block';
             } else if (action === 'search') {
                 tableGroup.style.display = 'block';
                 eanGroup.style.display = 'block';
@@ -854,7 +845,6 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
             // Aggiungi parametri in base all'azione
             if (action === 'list') {
                 formData.append('tabella', document.getElementById('tabella').value);
-                formData.append('limit', document.getElementById('limit').value);
             } else if (action === 'search') {
                 formData.append('tabella', document.getElementById('tabella').value);
                 const ean = document.getElementById('ean').value.trim();
