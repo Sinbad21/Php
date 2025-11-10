@@ -265,26 +265,61 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         .response-box {
             background: white;
             color: #000;
-            padding: 20px;
+            padding: 0;
             border-radius: 5px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 14px;
-            overflow-x: auto;
             border: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 480px;
         }
 
         .response-box table {
+            width: 100%;
+            border-collapse: collapse;
             font-size: 13px;
         }
 
         .response-box th {
+            position: sticky;
+            top: 0;
+            background: #2c3e50;
+            color: white;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
             white-space: nowrap;
+            border-right: 1px solid #34495e;
+            z-index: 10;
+        }
+
+        .response-box th:last-child {
+            border-right: none;
         }
 
         .response-box td {
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            border-right: 1px solid #f0f0f0;
+            color: #000;
+            white-space: nowrap;
+        }
+
+        .response-box td:last-child {
+            border-right: none;
+        }
+
+        .response-box tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .response-box tr:hover {
+            background: #e8f4f8;
         }
 
         .code-block {
@@ -853,35 +888,49 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
             if (data.success) {
                 // Mostra solo la tabella con i dati
                 if (data.data && data.data.dati && data.data.dati.length > 0) {
+                    // Info: numero risultati
+                    html += '<div style="padding: 12px 15px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0; font-weight: 600; color: #2c3e50;">';
+                    html += '📊 Risultati trovati: ' + data.data.dati.length;
+                    html += '</div>';
+
+                    // Wrapper con scroll
+                    html += '<div class="table-wrapper">';
+
                     // Crea tabella HTML
-                    html += '<table style="width: 100%; border-collapse: collapse; color: #000;">';
+                    html += '<table>';
 
                     // Header della tabella
                     html += '<thead>';
-                    html += '<tr style="background: #f0f0f0; border-bottom: 2px solid #ddd;">';
+                    html += '<tr>';
                     const firstItem = data.data.dati[0];
                     for (const key of Object.keys(firstItem)) {
-                        html += '<th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #000; border-bottom: 2px solid #ddd;">' + escapeHtml(key) + '</th>';
+                        // Formatta nome colonna: capitalizza e sostituisci underscore con spazi
+                        let displayKey = key.replace(/_/g, ' ').split(' ')
+                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ');
+                        html += '<th>' + escapeHtml(displayKey) + '</th>';
                     }
                     html += '</tr>';
                     html += '</thead>';
 
                     // Body della tabella
                     html += '<tbody>';
-                    data.data.dati.forEach((item, index) => {
-                        html += '<tr style="border-bottom: 1px solid #eee; ' + (index % 2 === 0 ? 'background: #fafafa;' : '') + '">';
+                    data.data.dati.forEach((item) => {
+                        html += '<tr>';
                         for (const value of Object.values(item)) {
-                            html += '<td style="padding: 10px 8px; color: #000;">' + escapeHtml(String(value !== null ? value : '')) + '</td>';
+                            let displayValue = value !== null && value !== '' ? String(value) : '-';
+                            html += '<td>' + escapeHtml(displayValue) + '</td>';
                         }
                         html += '</tr>';
                     });
                     html += '</tbody>';
                     html += '</table>';
+                    html += '</div>';
                 } else if (data.data && data.data.message) {
                     // Messaggio semplice (es: ping)
                     html += '<div style="color: #000; padding: 15px;">' + escapeHtml(data.data.message) + '</div>';
                 } else {
-                    html += '<div style="color: #000; padding: 15px;">Nessun risultato trovato.</div>';
+                    html += '<div style="color: #666; padding: 20px; text-align: center;">📭 Nessun risultato trovato.</div>';
                 }
 
             } else {
