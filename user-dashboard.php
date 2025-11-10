@@ -276,13 +276,13 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         .table-wrapper {
             overflow-x: auto;
             overflow-y: auto;
-            max-height: 480px;
+            max-height: 600px;
         }
 
         .response-box table {
-            width: 100%;
             border-collapse: collapse;
             font-size: 13px;
+            table-layout: auto;
         }
 
         .response-box th {
@@ -290,12 +290,22 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
             top: 0;
             background: #2c3e50;
             color: white;
-            padding: 14px 12px;
+            padding: 14px 16px;
             text-align: left;
             font-weight: 600;
             white-space: nowrap;
             border-right: 1px solid #34495e;
             z-index: 10;
+            min-width: 120px;
+            max-width: 180px;
+        }
+
+        .response-box th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 20;
+            min-width: 60px;
+            max-width: 80px;
         }
 
         .response-box th:last-child {
@@ -303,23 +313,41 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .response-box td {
-            padding: 12px;
+            padding: 12px 16px;
             border-bottom: 1px solid #e0e0e0;
             border-right: 1px solid #f0f0f0;
             color: #000;
             white-space: nowrap;
+            min-width: 120px;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .response-box td:first-child {
+            position: sticky;
+            left: 0;
+            background: inherit;
+            z-index: 5;
+            font-weight: 600;
+            min-width: 60px;
+            max-width: 80px;
         }
 
         .response-box td:last-child {
             border-right: none;
         }
 
-        .response-box tr:nth-child(even) {
+        .response-box tr:nth-child(even) td {
             background: #f8f9fa;
         }
 
-        .response-box tr:hover {
-            background: #e8f4f8;
+        .response-box tr:nth-child(even) td:first-child {
+            background: #f8f9fa;
+        }
+
+        .response-box tr:hover td {
+            background: #e8f4f8 !important;
         }
 
         .code-block {
