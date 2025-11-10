@@ -78,31 +78,64 @@ if (isset($_POST['disponibile'])) {
 // Costruisci URL
 $apiUrl = 'https://www.coded4u.com/api.php?' . http_build_query($params);
 
-// Chiama API
+// Chiama API usando cURL (compatibile con allow_url_fopen disabilitato)
 try {
-    $context = stream_context_create([
-        'http' => [
-            'method' => 'GET',
-            'timeout' => 30,
-            'ignore_errors' => true,
-            'follow_location' => 1,
-            'header' => 'User-Agent: PHP-API-Proxy/1.0'
-        ],
-        'ssl' => [
-            'verify_peer' => false,
-            'verify_peer_name' => false
+    // Verifica che cURL sia disponibile
+    if (!function_exists('curl_init')) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'cURL non è disponibile su questo server',
+            'details' => 'Contatta il provider di hosting per abilitare l\'estensione cURL'
+        ]);
+        exit;
+    }
+
+    // Inizializza cURL
+    $ch = curl_init();
+
+    // Configura opzioni cURL
+    curl_setopt_array($ch, [
+        CURLOPT_URL => $apiUrl,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 3,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_USERAGENT => 'PHP-API-Proxy/1.0',
+        CURLOPT_HTTPHEADER => [
+            'Accept: application/json',
+            'Cache-Control: no-cache'
         ]
     ]);
 
-    $response = @file_get_contents($apiUrl, false, $context);
+    // Esegui richiesta
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    $curlErrno = curl_errno($ch);
 
-    if ($response === false) {
-        $error = error_get_last();
+    curl_close($ch);
+
+    // Verifica errori cURL
+    if ($response === false || $curlErrno !== 0) {
         echo json_encode([
             'success' => false,
             'error' => 'Errore nella chiamata API',
-            'details' => $error['message'] ?? 'Errore sconosciuto',
-            'url' => $apiUrl // Debug: mostra URL chiamato
+            'details' => $curlError ?: 'Errore cURL sconosciuto (errno: ' . $curlErrno . ')',
+            'url' => $apiUrl
+        ]);
+        exit;
+    }
+
+    // Verifica HTTP status code
+    if ($httpCode !== 200) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Errore HTTP ' . $httpCode,
+            'details' => 'Il server ha risposto con codice ' . $httpCode,
+            'response' => substr($response, 0, 500),
+            'url' => $apiUrl
         ]);
         exit;
     }
@@ -113,7 +146,8 @@ try {
         echo json_encode([
             'success' => false,
             'error' => 'Risposta API non valida',
-            'response' => substr($response, 0, 500), // Primi 500 caratteri
+            'details' => 'La risposta non è un JSON valido: ' . json_last_error_msg(),
+            'response' => substr($response, 0, 500),
             'url' => $apiUrl
         ]);
         exit;
