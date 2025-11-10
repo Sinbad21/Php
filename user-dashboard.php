@@ -91,7 +91,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
             padding: 15px 30px;
             display: flex;
@@ -151,7 +151,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
             padding: 25px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #2c3e50;
         }
 
         .stat-card h3 {
@@ -165,7 +165,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         .stat-card .stat-value {
             font-size: 36px;
             font-weight: 700;
-            color: #667eea;
+            color: #2c3e50;
         }
 
         .api-key-box {
@@ -182,7 +182,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .btn-copy {
-            background: #667eea;
+            background: #2c3e50;
             color: white;
             padding: 8px 16px;
             border: none;
@@ -194,7 +194,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .btn-copy:hover {
-            background: #5568d3;
+            background: #34495e;
         }
 
         .section {
@@ -220,10 +220,11 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .tester-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            display: flex;
             gap: 15px;
             margin-bottom: 20px;
+            align-items: flex-end;
+            flex-wrap: wrap;
         }
 
         .form-group {
@@ -247,7 +248,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .btn-test {
-            background: #667eea;
+            background: #2c3e50;
             color: white;
             padding: 12px 24px;
             border: none;
@@ -258,19 +259,32 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .btn-test:hover {
-            background: #5568d3;
+            background: #34495e;
         }
 
         .response-box {
-            background: #2d2d2d;
-            color: #f8f8f2;
+            background: white;
+            color: #000;
             padding: 20px;
             border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
             overflow-x: auto;
-            max-height: 400px;
-            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .response-box table {
+            font-size: 13px;
+        }
+
+        .response-box th {
+            white-space: nowrap;
+        }
+
+        .response-box td {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .code-block {
@@ -289,7 +303,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
             position: absolute;
             top: 10px;
             right: 10px;
-            background: #667eea;
+            background: #2c3e50;
             color: white;
             border: none;
             padding: 5px 10px;
@@ -318,8 +332,8 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #2c3e50;
+            border-bottom-color: #2c3e50;
         }
 
         .tab-content {
@@ -384,26 +398,12 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
     <div class="navbar">
         <h1>👤 Dashboard Utente</h1>
         <div class="navbar-info">
-            <span>👋 <?php echo htmlspecialchars($username); ?></span>
+            <span>👋 <?php echo htmlspecialchars($username); ?> (<?php echo number_format($totalRequests); ?> richieste)</span>
             <a href="logout.php" class="btn btn-logout">Logout</a>
         </div>
     </div>
 
     <div class="container">
-        <!-- Statistiche -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>📡 Richieste Totali</h3>
-                <div class="stat-value"><?php echo number_format($totalRequests); ?></div>
-            </div>
-            <div class="stat-card">
-                <h3>🗓️ Account Creato</h3>
-                <div class="stat-value" style="font-size: 18px;">
-                    <?php echo date('d/m/Y', strtotime($accountCreated)); ?>
-                </div>
-            </div>
-        </div>
-
         <!-- API Key -->
         <div class="section">
             <div class="section-header">
@@ -431,7 +431,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
                 <input type="password" id="verifyPassword" placeholder="Password" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; margin-bottom: 15px;">
                 <div id="passwordError" style="color: #e74c3c; font-size: 13px; margin-bottom: 15px; display: none;"></div>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="verifyPasswordAndShowKey()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">Conferma</button>
+                    <button onclick="verifyPasswordAndShowKey()" style="flex: 1; padding: 10px; background: #2c3e50; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">Conferma</button>
                     <button onclick="closeApiKeyModal()" style="flex: 1; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer;">Annulla</button>
                 </div>
             </div>
@@ -473,7 +473,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
                     <input type="number" id="limit" name="limit" value="10" min="1" max="100">
                 </div>
 
-                <div class="form-group" style="grid-column: span 1;">
+                <div class="form-group">
                     <label>&nbsp;</label>
                     <button type="button" class="btn-test" onclick="testApi()">🚀 Esegui Test</button>
                 </div>
@@ -816,7 +816,7 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
             try {
                 // Mostra loading
                 document.getElementById('responseContainer').style.display = 'block';
-                document.getElementById('responseBox').innerHTML = '<div style="color: #667eea;">⏳ Chiamata API in corso...</div>';
+                document.getElementById('responseBox').innerHTML = '<div style="color: #2c3e50;">⏳ Chiamata API in corso...</div>';
 
                 // Usa il proxy invece di chiamare direttamente l'API
                 const response = await fetch('test-api-proxy.php', {
@@ -851,72 +851,37 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
             let html = '';
 
             if (data.success) {
-                html += '<div style="color: #27ae60; margin-bottom: 15px;"><strong>✓ Richiesta completata con successo</strong></div>';
+                // Mostra solo la tabella con i dati
+                if (data.data && data.data.dati && data.data.dati.length > 0) {
+                    // Crea tabella HTML
+                    html += '<table style="width: 100%; border-collapse: collapse; color: #000;">';
 
-                // Info utente
-                if (data.user) {
-                    html += '<div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">';
-                    html += '<strong>👤 Utente:</strong> ' + escapeHtml(data.user.username) + '<br>';
-                    html += '<strong>📊 Richieste totali:</strong> ' + data.user.request_count;
-                    html += '</div>';
-                }
-
-                // Dati principali
-                if (data.data) {
-                    html += '<div style="padding: 15px; background: #e8f5e9; border-radius: 5px; margin-bottom: 15px;">';
-                    html += '<strong>📦 Risposta:</strong><br>';
-                    html += '<div style="margin-top: 10px;">';
-
-                    if (data.data.message) {
-                        html += '<div style="margin-bottom: 10px;">' + escapeHtml(data.data.message) + '</div>';
+                    // Header della tabella
+                    html += '<thead>';
+                    html += '<tr style="background: #f0f0f0; border-bottom: 2px solid #ddd;">';
+                    const firstItem = data.data.dati[0];
+                    for (const key of Object.keys(firstItem)) {
+                        html += '<th style="padding: 12px 8px; text-align: left; font-weight: 600; color: #000; border-bottom: 2px solid #ddd;">' + escapeHtml(key) + '</th>';
                     }
+                    html += '</tr>';
+                    html += '</thead>';
 
-                    if (data.data.totale_elementi !== undefined) {
-                        html += '<strong>Totale elementi:</strong> ' + data.data.totale_elementi + '<br>';
-                        html += '<strong>Elementi restituiti:</strong> ' + data.data.elementi_restituiti + '<br>';
-                        html += '<strong>Pagina:</strong> ' + data.data.pagina_corrente + ' di ' + data.data.totale_pagine;
-                    }
-
-                    if (data.data.totale_risultati !== undefined) {
-                        html += '<strong>Risultati trovati:</strong> ' + data.data.totale_risultati + '<br>';
-                        html += '<strong>Risultati restituiti:</strong> ' + data.data.risultati_restituiti;
-                    }
-
-                    html += '</div></div>';
-
-                    // Tabella dati
-                    if (data.data.dati && data.data.dati.length > 0) {
-                        html += '<div style="margin-top: 20px;">';
-                        html += '<strong>🔍 Dati trovati (' + data.data.dati.length + '):</strong>';
-                        html += '<div style="margin-top: 10px; max-height: 400px; overflow-y: auto;">';
-
-                        data.data.dati.forEach((item, index) => {
-                            html += '<div style="background: white; padding: 15px; margin-bottom: 10px; border-left: 4px solid #667eea; border-radius: 5px;">';
-                            html += '<div style="font-weight: bold; color: #667eea; margin-bottom: 10px;">Elemento ' + (index + 1) + '</div>';
-
-                            for (const [key, value] of Object.entries(item)) {
-                                if (value !== null && value !== '') {
-                                    html += '<div style="margin-bottom: 5px;">';
-                                    html += '<strong>' + escapeHtml(key) + ':</strong> ';
-                                    html += '<span>' + escapeHtml(String(value)) + '</span>';
-                                    html += '</div>';
-                                }
-                            }
-
-                            html += '</div>';
-                        });
-
-                        html += '</div></div>';
-                    } else if (data.data.dati && data.data.dati.length === 0) {
-                        html += '<div style="color: #f39c12; margin-top: 15px;">⚠️ Nessun dato trovato con i criteri di ricerca specificati.</div>';
-                    }
-                }
-
-                // Info aggiuntive
-                if (data.data.tabelle_disponibili) {
-                    html += '<div style="margin-top: 15px; font-size: 12px; color: #666;">';
-                    html += '<strong>Tabelle disponibili:</strong> ' + data.data.tabelle_disponibili.join(', ');
-                    html += '</div>';
+                    // Body della tabella
+                    html += '<tbody>';
+                    data.data.dati.forEach((item, index) => {
+                        html += '<tr style="border-bottom: 1px solid #eee; ' + (index % 2 === 0 ? 'background: #fafafa;' : '') + '">';
+                        for (const value of Object.values(item)) {
+                            html += '<td style="padding: 10px 8px; color: #000;">' + escapeHtml(String(value !== null ? value : '')) + '</td>';
+                        }
+                        html += '</tr>';
+                    });
+                    html += '</tbody>';
+                    html += '</table>';
+                } else if (data.data && data.data.message) {
+                    // Messaggio semplice (es: ping)
+                    html += '<div style="color: #000; padding: 15px;">' + escapeHtml(data.data.message) + '</div>';
+                } else {
+                    html += '<div style="color: #000; padding: 15px;">Nessun risultato trovato.</div>';
                 }
 
             } else {
@@ -927,29 +892,13 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                 if (data.message) {
                     html += '<div style="margin-top: 5px; font-size: 14px;">' + escapeHtml(data.message) + '</div>';
                 }
-                // Debug info
                 if (data.details) {
                     html += '<div style="margin-top: 10px; font-size: 12px; background: #fff; padding: 10px; border-radius: 3px;">';
                     html += '<strong>Dettagli:</strong> ' + escapeHtml(data.details);
                     html += '</div>';
                 }
-                if (data.url) {
-                    html += '<div style="margin-top: 10px; font-size: 11px; color: #999; word-break: break-all;">';
-                    html += '<strong>URL chiamato:</strong><br>' + escapeHtml(data.url);
-                    html += '</div>';
-                }
-                if (data.response) {
-                    html += '<div style="margin-top: 10px; font-size: 11px; background: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: 3px; overflow-x: auto;">';
-                    html += '<strong>Risposta server:</strong><br><pre style="margin: 5px 0 0 0;">' + escapeHtml(data.response) + '</pre>';
-                    html += '</div>';
-                }
                 html += '</div>';
             }
-
-            // Timestamp
-            html += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #999;">';
-            html += '🕐 ' + (data.timestamp || new Date().toLocaleString());
-            html += '</div>';
 
             return html;
         }
