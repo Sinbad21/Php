@@ -84,16 +84,37 @@ try {
         'http' => [
             'method' => 'GET',
             'timeout' => 30,
-            'ignore_errors' => true
+            'ignore_errors' => true,
+            'follow_location' => 1,
+            'header' => 'User-Agent: PHP-API-Proxy/1.0'
+        ],
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false
         ]
     ]);
 
     $response = @file_get_contents($apiUrl, false, $context);
 
     if ($response === false) {
+        $error = error_get_last();
         echo json_encode([
             'success' => false,
-            'error' => 'Errore nella chiamata API'
+            'error' => 'Errore nella chiamata API',
+            'details' => $error['message'] ?? 'Errore sconosciuto',
+            'url' => $apiUrl // Debug: mostra URL chiamato
+        ]);
+        exit;
+    }
+
+    // Controlla se la risposta è JSON valido
+    $jsonTest = json_decode($response);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Risposta API non valida',
+            'response' => substr($response, 0, 500), // Primi 500 caratteri
+            'url' => $apiUrl
         ]);
         exit;
     }
@@ -105,6 +126,7 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'error' => 'Errore server: ' . $e->getMessage()
+        'error' => 'Errore server: ' . $e->getMessage(),
+        'url' => $apiUrl
     ]);
 }

@@ -814,20 +814,35 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
             }
 
             try {
+                // Mostra loading
+                document.getElementById('responseContainer').style.display = 'block';
+                document.getElementById('responseBox').innerHTML = '<div style="color: #667eea;">⏳ Chiamata API in corso...</div>';
+
                 // Usa il proxy invece di chiamare direttamente l'API
                 const response = await fetch('test-api-proxy.php', {
                     method: 'POST',
                     body: formData
                 });
 
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
                 const data = await response.json();
 
                 // Formatta risposta in HTML
-                document.getElementById('responseContainer').style.display = 'block';
                 document.getElementById('responseBox').innerHTML = formatApiResponse(data);
             } catch (error) {
                 document.getElementById('responseContainer').style.display = 'block';
-                document.getElementById('responseBox').innerHTML = `<div style="color: #e74c3c;"><strong>Errore:</strong> ${error.message}</div>`;
+                document.getElementById('responseBox').innerHTML = `
+                    <div style="color: #e74c3c; padding: 15px; background: #fee; border-radius: 5px; border-left: 4px solid #e74c3c;">
+                        <strong>✗ Errore di connessione</strong><br>
+                        <div style="margin-top: 10px;">${escapeHtml(error.message)}</div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #999;">
+                            Verifica che tutti i file siano stati caricati sul server e che il file test-api-proxy.php sia accessibile.
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -911,6 +926,22 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                 html += '<div style="margin-top: 10px;">' + escapeHtml(data.error || 'Errore sconosciuto') + '</div>';
                 if (data.message) {
                     html += '<div style="margin-top: 5px; font-size: 14px;">' + escapeHtml(data.message) + '</div>';
+                }
+                // Debug info
+                if (data.details) {
+                    html += '<div style="margin-top: 10px; font-size: 12px; background: #fff; padding: 10px; border-radius: 3px;">';
+                    html += '<strong>Dettagli:</strong> ' + escapeHtml(data.details);
+                    html += '</div>';
+                }
+                if (data.url) {
+                    html += '<div style="margin-top: 10px; font-size: 11px; color: #999; word-break: break-all;">';
+                    html += '<strong>URL chiamato:</strong><br>' + escapeHtml(data.url);
+                    html += '</div>';
+                }
+                if (data.response) {
+                    html += '<div style="margin-top: 10px; font-size: 11px; background: #2d2d2d; color: #f8f8f2; padding: 10px; border-radius: 3px; overflow-x: auto;">';
+                    html += '<strong>Risposta server:</strong><br><pre style="margin: 5px 0 0 0;">' + escapeHtml(data.response) + '</pre>';
+                    html += '</div>';
                 }
                 html += '</div>';
             }
