@@ -17,16 +17,16 @@ if (!defined('API_ACCESS')) {
 // ===================================================
 
 // Host del database (solitamente 'localhost' su Aruba)
-define('DB_HOST', 'localhost');
+define('DB_HOST', 'coded4u.com');
 
 // Nome del database (fornito da Aruba nel pannello di controllo)
-define('DB_NAME', 'nome_database');
+define('DB_NAME', 'Sql1897398_1');
 
 // Username del database (fornito da Aruba)
-define('DB_USER', 'username_db');
+define('DB_USER', 'Sql1897398');
 
 // Password del database (fornito da Aruba)
-define('DB_PASS', 'password_db');
+define('DB_PASS', 'nezkyT-gaxru4-forzih');
 
 // Charset della connessione (lasciare utf8mb4 per supporto completo emoji e caratteri speciali)
 define('DB_CHARSET', 'utf8mb4');
