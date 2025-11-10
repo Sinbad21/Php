@@ -316,6 +316,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
             border-right: 1px solid #f0f0f0;
             color: #000;
             word-wrap: break-word;
+            word-break: break-word;
             white-space: normal;
             width: 150px;
             max-width: 150px;
@@ -324,11 +325,12 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         .response-box td:first-child {
             position: sticky;
             left: 0;
-            background: inherit;
+            background: white;
             z-index: 5;
             font-weight: 600;
             width: 70px;
             max-width: 70px;
+            border-right: 2px solid #ddd;
         }
 
         .response-box td:last-child {
@@ -344,6 +346,10 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .response-box tr:hover td {
+            background: #e8f4f8 !important;
+        }
+
+        .response-box tr:hover td:first-child {
             background: #e8f4f8 !important;
         }
 
