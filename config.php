@@ -146,6 +146,45 @@ function getUserAgent() {
     return $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
 }
 
+/**
+ * Valida una password secondo regole di sicurezza
+ * @param string $password Password da validare
+ * @return array ['valid' => bool, 'errors' => array]
+ */
+function validatePassword($password) {
+    $errors = [];
+
+    // Minimo 8 caratteri
+    if (strlen($password) < 8) {
+        $errors[] = 'La password deve contenere almeno 8 caratteri';
+    }
+
+    // Almeno una lettera maiuscola
+    if (!preg_match('/[A-Z]/', $password)) {
+        $errors[] = 'La password deve contenere almeno una lettera maiuscola';
+    }
+
+    // Almeno una lettera minuscola
+    if (!preg_match('/[a-z]/', $password)) {
+        $errors[] = 'La password deve contenere almeno una lettera minuscola';
+    }
+
+    // Almeno un numero
+    if (!preg_match('/[0-9]/', $password)) {
+        $errors[] = 'La password deve contenere almeno un numero';
+    }
+
+    // Almeno un carattere speciale
+    if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+        $errors[] = 'La password deve contenere almeno un carattere speciale (!@#$%^&*)';
+    }
+
+    return [
+        'valid' => count($errors) === 0,
+        'errors' => $errors
+    ];
+}
+
 // ===================================================
 // FINE FILE CONFIGURAZIONE
 // ===================================================

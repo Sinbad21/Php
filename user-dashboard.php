@@ -410,8 +410,30 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
                 <h2>🔑 La Tua API Key</h2>
             </div>
             <div class="api-key-box">
-                <span id="apiKey"><?php echo htmlspecialchars($apiKey); ?></span>
-                <button class="btn-copy" onclick="copyApiKey()">Copia</button>
+                <span id="apiKey">••••••••••••••••••••••••••••••••</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-copy" id="showKeyBtn" onclick="showApiKeyModal()">👁️ Mostra</button>
+                    <button class="btn-copy" id="copyKeyBtn" onclick="copyApiKey()" style="display: none;">📋 Copia</button>
+                </div>
+            </div>
+            <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                🔒 Per motivi di sicurezza, l'API key è nascosta. Inserisci la tua password per visualizzarla.
+            </p>
+        </div>
+
+        <!-- Modal Password per API Key -->
+        <div id="apiKeyModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000;">
+            <div style="background: white; padding: 30px; border-radius: 10px; max-width: 400px; width: 90%;">
+                <h3 style="margin-bottom: 20px;">🔐 Verifica Password</h3>
+                <p style="margin-bottom: 15px; color: #666; font-size: 14px;">
+                    Inserisci la tua password per visualizzare l'API key
+                </p>
+                <input type="password" id="verifyPassword" placeholder="Password" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 5px; margin-bottom: 15px;">
+                <div id="passwordError" style="color: #e74c3c; font-size: 13px; margin-bottom: 15px; display: none;"></div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="verifyPasswordAndShowKey()" style="flex: 1; padding: 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">Conferma</button>
+                    <button onclick="closeApiKeyModal()" style="flex: 1; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer;">Annulla</button>
+                </div>
             </div>
         </div>
 
@@ -644,8 +666,113 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
     </div>
 
     <script>
-        const API_KEY = '<?php echo $apiKey; ?>';
-        const API_URL = 'https://coded4u.com/api.php';
+        let API_KEY = ''; // Sarà popolata dopo verifica password
+        const API_URL = 'https://www.coded4u.com/api.php'; // Usa www. per evitare redirect 301
+        let apiKeyRevealed = false;
+        let hideKeyTimer = null;
+
+        // Modal API Key
+        function showApiKeyModal() {
+            document.getElementById('apiKeyModal').style.display = 'flex';
+            document.getElementById('verifyPassword').value = '';
+            document.getElementById('passwordError').style.display = 'none';
+            setTimeout(() => document.getElementById('verifyPassword').focus(), 100);
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').style.display = 'none';
+        }
+
+        // Verifica password e mostra API key
+        async function verifyPasswordAndShowKey() {
+            const password = document.getElementById('verifyPassword').value;
+            const errorDiv = document.getElementById('passwordError');
+
+            if (!password) {
+                errorDiv.textContent = 'Inserisci la password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('reveal-api-key.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'password=' + encodeURIComponent(password)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Password corretta - mostra API key
+                    API_KEY = data.api_key;
+                    document.getElementById('apiKey').textContent = data.api_key;
+                    document.getElementById('showKeyBtn').style.display = 'none';
+                    document.getElementById('copyKeyBtn').style.display = 'block';
+                    apiKeyRevealed = true;
+                    closeApiKeyModal();
+                    showNotification('✓ API Key visualizzata. Verrà nascosta automaticamente tra 30 secondi.');
+
+                    // Nascondi automaticamente dopo 30 secondi
+                    if (hideKeyTimer) clearTimeout(hideKeyTimer);
+                    hideKeyTimer = setTimeout(hideApiKey, 30000);
+                } else {
+                    // Password errata
+                    errorDiv.textContent = data.error || 'Password non corretta';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Errore di connessione';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Nascondi API key
+        function hideApiKey() {
+            document.getElementById('apiKey').textContent = '••••••••••••••••••••••••••••••••';
+            document.getElementById('showKeyBtn').style.display = 'block';
+            document.getElementById('copyKeyBtn').style.display = 'none';
+            API_KEY = '';
+            apiKeyRevealed = false;
+            if (hideKeyTimer) clearTimeout(hideKeyTimer);
+        }
+
+        // Copia API Key (richiede password se non ancora visualizzata)
+        async function copyApiKey() {
+            if (!apiKeyRevealed) {
+                showApiKeyModal();
+                return;
+            }
+
+            const apiKeyText = document.getElementById('apiKey').textContent;
+            if (apiKeyText && apiKeyText !== '••••••••••••••••••••••••••••••••') {
+                navigator.clipboard.writeText(apiKeyText);
+                showNotification('✓ API Key copiata!');
+            }
+        }
+
+        // Chiudi modal con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeApiKeyModal();
+            }
+        });
+
+        // Chiudi modal cliccando fuori
+        document.getElementById('apiKeyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeApiKeyModal();
+            }
+        });
+
+        // Submit con Enter nel campo password
+        document.getElementById('verifyPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyPasswordAndShowKey();
+            }
+        });
 
         // Toggle campi form in base all'azione
         function toggleFields() {
@@ -674,6 +801,13 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
 
         // Test API
         async function testApi() {
+            // Controlla se API key è stata rivelata
+            if (!apiKeyRevealed || !API_KEY) {
+                showNotification('⚠️ Prima devi visualizzare l\'API key');
+                showApiKeyModal();
+                return;
+            }
+
             const action = document.getElementById('action').value;
             const params = { api_key: API_KEY, action: action };
 
@@ -698,13 +832,6 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                 document.getElementById('responseContainer').style.display = 'block';
                 document.getElementById('responseBox').textContent = 'Errore: ' + error.message;
             }
-        }
-
-        // Copia API Key
-        function copyApiKey() {
-            const apiKey = document.getElementById('apiKey').textContent;
-            navigator.clipboard.writeText(apiKey);
-            showNotification('✓ API Key copiata!');
         }
 
         // Copia codice

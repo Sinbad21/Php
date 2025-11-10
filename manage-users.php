@@ -29,22 +29,30 @@ if (isset($_POST['create_user'])) {
     $password = $_POST['password'];
 
     if (!empty($username) && !empty($password)) {
-        // Genera API key univoca
-        $apiKey = bin2hex(random_bytes(32));
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        // Valida password
+        $validation = validatePassword($password);
 
-        try {
-            $stmt = $pdo->prepare("INSERT INTO utenti (username, api_key, password_hash, richieste) VALUES (:username, :api_key, :password_hash, 0)");
-            $stmt->execute([
-                'username' => $username,
-                'api_key' => $apiKey,
-                'password_hash' => $passwordHash
-            ]);
-            $message = "Utente '$username' creato con successo!";
-            $messageType = 'success';
-        } catch (PDOException $e) {
-            $message = "Errore: " . $e->getMessage();
+        if (!$validation['valid']) {
+            $message = "Password non valida:<br>" . implode('<br>', $validation['errors']);
             $messageType = 'error';
+        } else {
+            // Genera API key univoca
+            $apiKey = bin2hex(random_bytes(32));
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+            try {
+                $stmt = $pdo->prepare("INSERT INTO utenti (username, api_key, password_hash, richieste) VALUES (:username, :api_key, :password_hash, 0)");
+                $stmt->execute([
+                    'username' => $username,
+                    'api_key' => $apiKey,
+                    'password_hash' => $passwordHash
+                ]);
+                $message = "Utente '$username' creato con successo!";
+                $messageType = 'success';
+            } catch (PDOException $e) {
+                $message = "Errore: " . $e->getMessage();
+                $messageType = 'error';
+            }
         }
     } else {
         $message = "Username e password sono obbligatori!";
@@ -72,18 +80,26 @@ if (isset($_POST['reset_password'])) {
     $newPassword = $_POST['new_password'];
 
     if (!empty($newPassword)) {
-        $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
-        try {
-            $stmt = $pdo->prepare("UPDATE utenti SET password_hash = :password_hash WHERE id = :id");
-            $stmt->execute([
-                'password_hash' => $passwordHash,
-                'id' => $userId
-            ]);
-            $message = "Password resettata con successo!";
-            $messageType = 'success';
-        } catch (PDOException $e) {
-            $message = "Errore: " . $e->getMessage();
+        // Valida password
+        $validation = validatePassword($newPassword);
+
+        if (!$validation['valid']) {
+            $message = "Password non valida:<br>" . implode('<br>', $validation['errors']);
             $messageType = 'error';
+        } else {
+            $passwordHash = password_hash($newPassword, PASSWORD_DEFAULT);
+            try {
+                $stmt = $pdo->prepare("UPDATE utenti SET password_hash = :password_hash WHERE id = :id");
+                $stmt->execute([
+                    'password_hash' => $passwordHash,
+                    'id' => $userId
+                ]);
+                $message = "Password resettata con successo!";
+                $messageType = 'success';
+            } catch (PDOException $e) {
+                $message = "Errore: " . $e->getMessage();
+                $messageType = 'error';
+            }
         }
     }
 }
