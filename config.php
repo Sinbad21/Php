@@ -17,7 +17,7 @@ if (!defined('API_ACCESS')) {
 // ===================================================
 
 // Host del database (solitamente 'localhost' su Aruba)
-define('DB_HOST', 'coded4u.com');
+define('DB_HOST', 'localhost');
 
 // Nome del database (fornito da Aruba nel pannello di controllo)
 define('DB_NAME', 'Sql1897398_1');
