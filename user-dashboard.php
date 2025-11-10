@@ -265,45 +265,46 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         .response-box {
             background: white;
             color: #000;
-            padding: 0;
+            padding: 20px;
             border-radius: 5px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 14px;
             border: 1px solid #e0e0e0;
-            overflow: hidden;
         }
 
         .table-wrapper {
-            overflow-x: auto;
             overflow-y: auto;
             max-height: 600px;
         }
 
+        .column-group {
+            margin-bottom: 30px;
+        }
+
+        .column-group-title {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
         .response-box table {
+            width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            table-layout: auto;
+            margin-bottom: 20px;
         }
 
         .response-box th {
-            position: sticky;
-            top: 0;
-            background: #2c3e50;
-            color: white;
-            padding: 14px 16px;
+            background: #f0f0f0;
+            color: #000;
+            padding: 12px;
             text-align: left;
             font-weight: 600;
-            white-space: nowrap;
-            border-right: 1px solid #34495e;
-            z-index: 10;
-            width: 150px;
-        }
-
-        .response-box th:first-child {
-            position: sticky;
-            left: 0;
-            z-index: 20;
-            width: 70px;
+            border-bottom: 2px solid #ddd;
+            border-right: 1px solid #ddd;
         }
 
         .response-box th:last-child {
@@ -311,46 +312,22 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
         }
 
         .response-box td {
-            padding: 12px 16px;
+            padding: 10px 12px;
             border-bottom: 1px solid #e0e0e0;
             border-right: 1px solid #f0f0f0;
             color: #000;
-            word-wrap: break-word;
-            word-break: break-word;
-            white-space: normal;
-            width: 150px;
-            max-width: 150px;
-        }
-
-        .response-box td:first-child {
-            position: sticky;
-            left: 0;
-            background: white;
-            z-index: 5;
-            font-weight: 600;
-            width: 70px;
-            max-width: 70px;
-            border-right: 2px solid #ddd;
         }
 
         .response-box td:last-child {
             border-right: none;
         }
 
-        .response-box tr:nth-child(even) td {
+        .response-box tr:nth-child(even) {
             background: #f8f9fa;
         }
 
-        .response-box tr:nth-child(even) td:first-child {
-            background: #f8f9fa;
-        }
-
-        .response-box tr:hover td {
-            background: #e8f4f8 !important;
-        }
-
-        .response-box tr:hover td:first-child {
-            background: #e8f4f8 !important;
+        .response-box tr:hover {
+            background: #e8f4f8;
         }
 
         .code-block {
@@ -920,42 +897,63 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                 // Mostra solo la tabella con i dati
                 if (data.data && data.data.dati && data.data.dati.length > 0) {
                     // Info: numero risultati
-                    html += '<div style="padding: 12px 15px; background: #f8f9fa; border-bottom: 1px solid #e0e0e0; font-weight: 600; color: #2c3e50;">';
+                    html += '<div style="padding: 12px 0; font-weight: 600; color: #2c3e50; margin-bottom: 15px;">';
                     html += '📊 Risultati trovati: ' + data.data.dati.length;
                     html += '</div>';
+
+                    // Ottieni tutte le colonne
+                    const firstItem = data.data.dati[0];
+                    const allColumns = Object.keys(firstItem);
+                    const columnCount = allColumns.length;
+
+                    // Dividi colonne in gruppi di 8
+                    const columnsPerGroup = 8;
+                    const groupCount = Math.ceil(columnCount / columnsPerGroup);
 
                     // Wrapper con scroll
                     html += '<div class="table-wrapper">';
 
-                    // Crea tabella HTML
-                    html += '<table>';
+                    // Crea una tabella per ogni gruppo di 8 colonne
+                    for (let groupIndex = 0; groupIndex < groupCount; groupIndex++) {
+                        const startCol = groupIndex * columnsPerGroup;
+                        const endCol = Math.min(startCol + columnsPerGroup, columnCount);
+                        const groupColumns = allColumns.slice(startCol, endCol);
 
-                    // Header della tabella
-                    html += '<thead>';
-                    html += '<tr>';
-                    const firstItem = data.data.dati[0];
-                    for (const key of Object.keys(firstItem)) {
-                        // Formatta nome colonna: capitalizza e sostituisci underscore con spazi
-                        let displayKey = key.replace(/_/g, ' ').split(' ')
-                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                            .join(' ');
-                        html += '<th>' + escapeHtml(displayKey) + '</th>';
-                    }
-                    html += '</tr>';
-                    html += '</thead>';
-
-                    // Body della tabella
-                    html += '<tbody>';
-                    data.data.dati.forEach((item) => {
-                        html += '<tr>';
-                        for (const value of Object.values(item)) {
-                            let displayValue = value !== null && value !== '' ? String(value) : '-';
-                            html += '<td>' + escapeHtml(displayValue) + '</td>';
+                        // Titolo gruppo (se ci sono più gruppi)
+                        if (groupCount > 1) {
+                            html += '<div class="column-group-title">';
+                            html += 'Colonne ' + (startCol + 1) + '-' + endCol;
+                            html += '</div>';
                         }
-                        html += '</tr>';
-                    });
-                    html += '</tbody>';
-                    html += '</table>';
+
+                        // Tabella per questo gruppo
+                        html += '<table>';
+
+                        // Header
+                        html += '<thead><tr>';
+                        groupColumns.forEach(key => {
+                            let displayKey = key.replace(/_/g, ' ').split(' ')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ');
+                            html += '<th>' + escapeHtml(displayKey) + '</th>';
+                        });
+                        html += '</tr></thead>';
+
+                        // Body
+                        html += '<tbody>';
+                        data.data.dati.forEach((item) => {
+                            html += '<tr>';
+                            groupColumns.forEach(key => {
+                                let value = item[key];
+                                let displayValue = value !== null && value !== '' ? String(value) : '-';
+                                html += '<td>' + escapeHtml(displayValue) + '</td>';
+                            });
+                            html += '</tr>';
+                        });
+                        html += '</tbody>';
+                        html += '</table>';
+                    }
+
                     html += '</div>';
                 } else if (data.data && data.data.message) {
                     // Messaggio semplice (es: ping)
