@@ -1,0 +1,58 @@
+# ===================================================
+# .gitignore per Sistema API Tracking
+# ===================================================
+
+# File di configurazione con credenziali database
+# Decommenta la riga sotto se hai modificato config.php con credenziali reali
+# config.php
+
+# File di backup
+*.bak
+*.backup
+*.old
+*.tmp
+
+# File di log
+*.log
+error_log
+debug.log
+
+# File di sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Directory temporanee
+tmp/
+temp/
+cache/
+
+# File dell'editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# File di configurazione locale
+.env
+.env.local
+
+# Backup database
+*.sql.gz
+*.sql.zip
+database_backup/
+
+# File caricati dagli utenti (se presenti)
+uploads/
+files/
+
+# Composer (se usato)
+vendor/
+composer.lock
+
+# Node modules (se usati)
+node_modules/
+package-lock.json
