@@ -832,6 +832,22 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
         async function testApi() {
             const action = document.getElementById('action').value;
             currentAction = action; // Salva l'azione corrente
+
+            // Validazione: se l'azione è search, richiedi EAN
+            if (action === 'search') {
+                const ean = document.getElementById('ean').value.trim();
+                if (!ean) {
+                    document.getElementById('responseContainer').style.display = 'block';
+                    document.getElementById('responseBox').innerHTML = `
+                        <div style="color: #e74c3c; padding: 15px; background: #fee; border-radius: 5px; border-left: 4px solid #e74c3c;">
+                            <strong>⚠️ Campo obbligatorio</strong><br>
+                            <div style="margin-top: 10px;">Inserisci un codice EAN per effettuare la ricerca.</div>
+                        </div>
+                    `;
+                    return; // Interrompi l'esecuzione
+                }
+            }
+
             const formData = new FormData();
             formData.append('action', action);
 
@@ -841,10 +857,8 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                 formData.append('limit', document.getElementById('limit').value);
             } else if (action === 'search') {
                 formData.append('tabella', document.getElementById('tabella').value);
-                const ean = document.getElementById('ean').value;
-                if (ean) {
-                    formData.append('ean', ean);
-                }
+                const ean = document.getElementById('ean').value.trim();
+                formData.append('ean', ean);
             }
 
             try {
