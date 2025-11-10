@@ -888,9 +888,12 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                     html += '📊 Risultati trovati: ' + data.data.dati.length;
                     html += '</div>';
 
-                    // Ottieni tutte le colonne
+                    // Ottieni tutte le colonne (escludi colonne timestamp non desiderate)
                     const firstItem = data.data.dati[0];
-                    const allColumns = Object.keys(firstItem);
+                    const excludedColumns = ['data_aggiornamento', 'data_creazione', 'updated_at', 'created_at', 'timestamp'];
+                    const allColumns = Object.keys(firstItem).filter(col =>
+                        !excludedColumns.includes(col.toLowerCase())
+                    );
                     const columnCount = allColumns.length;
 
                     // Dividi colonne in gruppi di 8
