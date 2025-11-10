@@ -16,8 +16,8 @@ if (!defined('API_ACCESS')) {
 // Modifica questi parametri con quelli del tuo hosting Aruba
 // ===================================================
 
-// Host del database (solitamente 'localhost' su Aruba)
-define('DB_HOST', 'localhost');
+// Host del database (indirizzo IP specifico del server MySQL Aruba)
+define('DB_HOST', '31.11.39.251:3306');
 
 // Nome del database (fornito da Aruba nel pannello di controllo)
 define('DB_NAME', 'Sql1897398_1');
