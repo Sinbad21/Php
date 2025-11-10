@@ -825,9 +825,13 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
             }
         }
 
+        // Variabile globale per tenere traccia dell'azione corrente
+        let currentAction = 'ping';
+
         // Test API (usa proxy per sicurezza)
         async function testApi() {
             const action = document.getElementById('action').value;
+            currentAction = action; // Salva l'azione corrente
             const formData = new FormData();
             formData.append('action', action);
 
@@ -896,25 +900,56 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                     );
                     const columnCount = allColumns.length;
 
-                    // Dividi colonne in gruppi di 8
-                    const columnsPerGroup = 8;
-                    const groupCount = Math.ceil(columnCount / columnsPerGroup);
-
                     // Wrapper con scroll
                     html += '<div class="table-wrapper">';
 
-                    // Crea una tabella per ogni gruppo di 8 colonne
-                    for (let groupIndex = 0; groupIndex < groupCount; groupIndex++) {
-                        const startCol = groupIndex * columnsPerGroup;
-                        const endCol = Math.min(startCol + columnsPerGroup, columnCount);
-                        const groupColumns = allColumns.slice(startCol, endCol);
+                    // SOLO per search: dividi in gruppi da 8 colonne
+                    // Per list/stats/ping: mostra tutto in una tabella
+                    if (currentAction === 'search') {
+                        // Dividi colonne in gruppi di 8
+                        const columnsPerGroup = 8;
+                        const groupCount = Math.ceil(columnCount / columnsPerGroup);
 
-                        // Tabella per questo gruppo
+                        // Crea una tabella per ogni gruppo di 8 colonne
+                        for (let groupIndex = 0; groupIndex < groupCount; groupIndex++) {
+                            const startCol = groupIndex * columnsPerGroup;
+                            const endCol = Math.min(startCol + columnsPerGroup, columnCount);
+                            const groupColumns = allColumns.slice(startCol, endCol);
+
+                            // Tabella per questo gruppo
+                            html += '<table>';
+
+                            // Header
+                            html += '<thead><tr>';
+                            groupColumns.forEach(key => {
+                                let displayKey = key.replace(/_/g, ' ').split(' ')
+                                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                    .join(' ');
+                                html += '<th>' + escapeHtml(displayKey) + '</th>';
+                            });
+                            html += '</tr></thead>';
+
+                            // Body
+                            html += '<tbody>';
+                            data.data.dati.forEach((item) => {
+                                html += '<tr>';
+                                groupColumns.forEach(key => {
+                                    let value = item[key];
+                                    let displayValue = value !== null && value !== '' ? String(value) : '-';
+                                    html += '<td>' + escapeHtml(displayValue) + '</td>';
+                                });
+                                html += '</tr>';
+                            });
+                            html += '</tbody>';
+                            html += '</table>';
+                        }
+                    } else {
+                        // Per list/stats/ping: tabella normale con tutte le colonne
                         html += '<table>';
 
                         // Header
                         html += '<thead><tr>';
-                        groupColumns.forEach(key => {
+                        allColumns.forEach(key => {
                             let displayKey = key.replace(/_/g, ' ').split(' ')
                                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                                 .join(' ');
@@ -926,7 +961,7 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
                         html += '<tbody>';
                         data.data.dati.forEach((item) => {
                             html += '<tr>';
-                            groupColumns.forEach(key => {
+                            allColumns.forEach(key => {
                                 let value = item[key];
                                 let displayValue = value !== null && value !== '' ? String(value) : '-';
                                 html += '<td>' + escapeHtml(displayValue) + '</td>';
