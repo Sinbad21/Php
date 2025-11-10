@@ -280,6 +280,12 @@ try {
                 $params['produttore'] = '%' . ($_GET['produttore'] ?? $_POST['produttore']) . '%';
             }
 
+            // Filtro per EAN (codice a barre)
+            if (!empty($_GET['ean']) || !empty($_POST['ean'])) {
+                $where[] = "ean = :ean";
+                $params['ean'] = $_GET['ean'] ?? $_POST['ean'];
+            }
+
             // Filtro per prezzo minimo
             if (isset($_GET['prezzo_min']) || isset($_POST['prezzo_min'])) {
                 $where[] = "prezzo >= :prezzo_min";

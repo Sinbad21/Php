@@ -449,8 +449,7 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
                     <select id="action" name="action" onchange="toggleFields()">
                         <option value="ping">Ping - Test connessione</option>
                         <option value="list">List - Elenca componenti</option>
-                        <option value="get">Get - Singolo componente</option>
-                        <option value="search">Search - Cerca componenti</option>
+                        <option value="search">Search - Cerca per EAN</option>
                         <option value="stats">Stats - Statistiche</option>
                     </select>
                 </div>
@@ -464,9 +463,9 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
                     </select>
                 </div>
 
-                <div class="form-group" id="idGroup" style="display: none;">
-                    <label>ID Componente</label>
-                    <input type="number" id="id" name="id" value="1" min="1">
+                <div class="form-group" id="eanGroup" style="display: none;">
+                    <label>Codice EAN</label>
+                    <input type="text" id="ean" name="ean" placeholder="Es: 1234567890123">
                 </div>
 
                 <div class="form-group" id="limitGroup" style="display: none;">
@@ -778,60 +777,157 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
         function toggleFields() {
             const action = document.getElementById('action').value;
             const tableGroup = document.getElementById('tableGroup');
-            const idGroup = document.getElementById('idGroup');
+            const eanGroup = document.getElementById('eanGroup');
             const limitGroup = document.getElementById('limitGroup');
 
             // Nascondi tutto
             tableGroup.style.display = 'none';
-            idGroup.style.display = 'none';
+            eanGroup.style.display = 'none';
             limitGroup.style.display = 'none';
 
             // Mostra campi in base all'azione
             if (action === 'list') {
                 tableGroup.style.display = 'block';
                 limitGroup.style.display = 'block';
-            } else if (action === 'get') {
-                tableGroup.style.display = 'block';
-                idGroup.style.display = 'block';
             } else if (action === 'search') {
                 tableGroup.style.display = 'block';
-                limitGroup.style.display = 'block';
+                eanGroup.style.display = 'block';
             }
         }
 
-        // Test API
+        // Test API (usa proxy per sicurezza)
         async function testApi() {
-            // Controlla se API key è stata rivelata
-            if (!apiKeyRevealed || !API_KEY) {
-                showNotification('⚠️ Prima devi visualizzare l\'API key');
-                showApiKeyModal();
-                return;
-            }
-
             const action = document.getElementById('action').value;
-            const params = { api_key: API_KEY, action: action };
+            const formData = new FormData();
+            formData.append('action', action);
 
-            if (action === 'list' || action === 'search') {
-                params.tabella = document.getElementById('tabella').value;
-                params.limit = document.getElementById('limit').value;
-            } else if (action === 'get') {
-                params.tabella = document.getElementById('tabella').value;
-                params.id = document.getElementById('id').value;
+            // Aggiungi parametri in base all'azione
+            if (action === 'list') {
+                formData.append('tabella', document.getElementById('tabella').value);
+                formData.append('limit', document.getElementById('limit').value);
+            } else if (action === 'search') {
+                formData.append('tabella', document.getElementById('tabella').value);
+                const ean = document.getElementById('ean').value;
+                if (ean) {
+                    formData.append('ean', ean);
+                }
             }
-
-            const url = new URL(API_URL);
-            Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
 
             try {
-                const response = await fetch(url);
+                // Usa il proxy invece di chiamare direttamente l'API
+                const response = await fetch('test-api-proxy.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
                 const data = await response.json();
 
+                // Formatta risposta in HTML
                 document.getElementById('responseContainer').style.display = 'block';
-                document.getElementById('responseBox').textContent = JSON.stringify(data, null, 2);
+                document.getElementById('responseBox').innerHTML = formatApiResponse(data);
             } catch (error) {
                 document.getElementById('responseContainer').style.display = 'block';
-                document.getElementById('responseBox').textContent = 'Errore: ' + error.message;
+                document.getElementById('responseBox').innerHTML = `<div style="color: #e74c3c;"><strong>Errore:</strong> ${error.message}</div>`;
             }
+        }
+
+        // Formatta risposta API in HTML leggibile
+        function formatApiResponse(data) {
+            let html = '';
+
+            if (data.success) {
+                html += '<div style="color: #27ae60; margin-bottom: 15px;"><strong>✓ Richiesta completata con successo</strong></div>';
+
+                // Info utente
+                if (data.user) {
+                    html += '<div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">';
+                    html += '<strong>👤 Utente:</strong> ' + escapeHtml(data.user.username) + '<br>';
+                    html += '<strong>📊 Richieste totali:</strong> ' + data.user.request_count;
+                    html += '</div>';
+                }
+
+                // Dati principali
+                if (data.data) {
+                    html += '<div style="padding: 15px; background: #e8f5e9; border-radius: 5px; margin-bottom: 15px;">';
+                    html += '<strong>📦 Risposta:</strong><br>';
+                    html += '<div style="margin-top: 10px;">';
+
+                    if (data.data.message) {
+                        html += '<div style="margin-bottom: 10px;">' + escapeHtml(data.data.message) + '</div>';
+                    }
+
+                    if (data.data.totale_elementi !== undefined) {
+                        html += '<strong>Totale elementi:</strong> ' + data.data.totale_elementi + '<br>';
+                        html += '<strong>Elementi restituiti:</strong> ' + data.data.elementi_restituiti + '<br>';
+                        html += '<strong>Pagina:</strong> ' + data.data.pagina_corrente + ' di ' + data.data.totale_pagine;
+                    }
+
+                    if (data.data.totale_risultati !== undefined) {
+                        html += '<strong>Risultati trovati:</strong> ' + data.data.totale_risultati + '<br>';
+                        html += '<strong>Risultati restituiti:</strong> ' + data.data.risultati_restituiti;
+                    }
+
+                    html += '</div></div>';
+
+                    // Tabella dati
+                    if (data.data.dati && data.data.dati.length > 0) {
+                        html += '<div style="margin-top: 20px;">';
+                        html += '<strong>🔍 Dati trovati (' + data.data.dati.length + '):</strong>';
+                        html += '<div style="margin-top: 10px; max-height: 400px; overflow-y: auto;">';
+
+                        data.data.dati.forEach((item, index) => {
+                            html += '<div style="background: white; padding: 15px; margin-bottom: 10px; border-left: 4px solid #667eea; border-radius: 5px;">';
+                            html += '<div style="font-weight: bold; color: #667eea; margin-bottom: 10px;">Elemento ' + (index + 1) + '</div>';
+
+                            for (const [key, value] of Object.entries(item)) {
+                                if (value !== null && value !== '') {
+                                    html += '<div style="margin-bottom: 5px;">';
+                                    html += '<strong>' + escapeHtml(key) + ':</strong> ';
+                                    html += '<span>' + escapeHtml(String(value)) + '</span>';
+                                    html += '</div>';
+                                }
+                            }
+
+                            html += '</div>';
+                        });
+
+                        html += '</div></div>';
+                    } else if (data.data.dati && data.data.dati.length === 0) {
+                        html += '<div style="color: #f39c12; margin-top: 15px;">⚠️ Nessun dato trovato con i criteri di ricerca specificati.</div>';
+                    }
+                }
+
+                // Info aggiuntive
+                if (data.data.tabelle_disponibili) {
+                    html += '<div style="margin-top: 15px; font-size: 12px; color: #666;">';
+                    html += '<strong>Tabelle disponibili:</strong> ' + data.data.tabelle_disponibili.join(', ');
+                    html += '</div>';
+                }
+
+            } else {
+                // Errore
+                html += '<div style="color: #e74c3c; padding: 15px; background: #fee; border-radius: 5px; border-left: 4px solid #e74c3c;">';
+                html += '<strong>✗ Errore</strong><br>';
+                html += '<div style="margin-top: 10px;">' + escapeHtml(data.error || 'Errore sconosciuto') + '</div>';
+                if (data.message) {
+                    html += '<div style="margin-top: 5px; font-size: 14px;">' + escapeHtml(data.message) + '</div>';
+                }
+                html += '</div>';
+            }
+
+            // Timestamp
+            html += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #999;">';
+            html += '🕐 ' + (data.timestamp || new Date().toLocaleString());
+            html += '</div>';
+
+            return html;
+        }
+
+        // Escape HTML per sicurezza
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Copia codice
