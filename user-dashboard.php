@@ -890,7 +890,7 @@ curl "https://coded4u.com/api.php?api_key=<?php echo $apiKey; ?>&action=search&t
 
                     // Ottieni tutte le colonne (escludi colonne timestamp non desiderate)
                     const firstItem = data.data.dati[0];
-                    const excludedColumns = ['data_aggiornamento', 'data_creazione', 'updated_at', 'created_at', 'timestamp'];
+                    const excludedColumns = ['data_aggiornamento', 'data_creazione', 'data_inserimento', 'data_modifica', 'updated_at', 'created_at', 'timestamp', 'inserted_at'];
                     const allColumns = Object.keys(firstItem).filter(col =>
                         !excludedColumns.includes(col.toLowerCase())
                     );
