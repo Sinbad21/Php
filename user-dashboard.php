@@ -296,16 +296,14 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
             white-space: nowrap;
             border-right: 1px solid #34495e;
             z-index: 10;
-            min-width: 120px;
-            max-width: 180px;
+            width: 150px;
         }
 
         .response-box th:first-child {
             position: sticky;
             left: 0;
             z-index: 20;
-            min-width: 60px;
-            max-width: 80px;
+            width: 70px;
         }
 
         .response-box th:last-child {
@@ -317,11 +315,10 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
             border-bottom: 1px solid #e0e0e0;
             border-right: 1px solid #f0f0f0;
             color: #000;
-            white-space: nowrap;
-            min-width: 120px;
-            max-width: 180px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-wrap: break-word;
+            white-space: normal;
+            width: 150px;
+            max-width: 150px;
         }
 
         .response-box td:first-child {
@@ -330,8 +327,8 @@ $tabelle = ['alimentatore', 'case', 'cpu', 'dissipatore', 'gpu', 'hdd', 'ram', '
             background: inherit;
             z-index: 5;
             font-weight: 600;
-            min-width: 60px;
-            max-width: 80px;
+            width: 70px;
+            max-width: 70px;
         }
 
         .response-box td:last-child {
